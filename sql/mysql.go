@@ -13,8 +13,9 @@ func GetMysql()*xorm.Engine{
 
 func InitMySQLEngine() (*xorm.Engine, error) {
 	// 不指定数据库名称进行连接
-	dsn := fmt.Sprintf("root:123456@tcp(localhost:3306)/")
-	engine, err := xorm.NewEngine("mysql", dsn)
+	dsn := fmt.Sprintf("root:123456@tcp(127.0.0.1:3306)/")
+	var err error
+	engine, err = xorm.NewEngine("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("连接MySQL失败: %v", err)
 	}
@@ -34,11 +35,15 @@ func InitMySQLEngine() (*xorm.Engine, error) {
 
 	// 重新连接，这次指定数据库
 	engine.Close()
-	dsn = fmt.Sprintf("root:123456@tcp(localhost:3306)/test?charset=utf8mb4")
+	dsn = fmt.Sprintf("root:123456@tcp(127.0.0.1:3306)/test?charset=utf8mb4")
 	engine, err = xorm.NewEngine("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("重新连接MySQL失败: %v", err)
 	}
+
+	// 设置连接池
+	engine.SetMaxIdleConns(5)
+	engine.SetMaxOpenConns(10)
 
 	return engine, nil
 }
